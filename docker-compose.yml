@@ -2,6 +2,6 @@ services:
   app:
     build: .
     ports:
-      - "8000:8000"
+      - "8032:8000"
     environment:
       - GROQ_API_KEY=${GROQ_API_KEY} 
