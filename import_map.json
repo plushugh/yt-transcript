@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "groq-sdk": "npm:groq-sdk",
+    "youtube-transcript": "npm:youtube-transcript"
+  }
+} 

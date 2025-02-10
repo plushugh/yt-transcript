@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Transcript Cleaner</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        .container {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        input[type="url"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        #result {
+            white-space: pre-wrap;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            display: none;
+            color: #666;
+            margin: 20px 0;
+        }
+
+        .error {
+            color: #e74c3c;
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>YouTube Transcript Cleaner</h1>
+    <div class="container">
+        <div class="input-group">
+            <label for="youtube-url">Paste YouTube URL:</label>
+            <input type="url" id="youtube-url" 
+                   placeholder="https://www.youtube.com/watch?v=..." 
+                   aria-label="YouTube video URL">
+            <button onclick="getTranscript()" id="submit-btn">Get Clean Transcript</button>
+            <div class="error" id="error-message">Could not fetch transcript. Please check the URL and try again. Or maybe the video's transcript was too long.</div>
+        </div>
+        <div class="loading" id="loading">Processing... Please wait...</div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function getTranscript() {
+            const urlInput = document.getElementById('youtube-url');
+            const submitBtn = document.getElementById('submit-btn');
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            const error = document.getElementById('error-message');
+
+            const url = urlInput.value.trim();
+            if (!url) return;
+
+            // UI updates
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            error.style.display = 'none';
+
+            try {
+                const response = await fetch('/transcript', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    result.textContent = data.transcript;
+                    result.style.display = 'block';
+                } else {
+                    error.style.display = 'block';
+                }
+            } catch (e) {
+                error.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Allow submission with Enter key
+        document.getElementById('youtube-url').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                getTranscript();
+            }
+        });
+    </script>
+</body>
+</html> 
